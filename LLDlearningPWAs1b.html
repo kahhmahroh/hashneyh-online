@@ -1,0 +1,467 @@
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Store</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+  <link rel="icon" href="icons/icon-512.png" sizes="512x512" />
+  
+  <meta name="theme-color" content="#0b76ef" />
+  <style>
+    /* your existing styles here */
+	
+	 <style>
+    :root {
+      --page-width: 800px;
+      --page-height: 950px; /* Set height to 950px */
+      --transition-speed: 0.6s;
+    }
+
+    body {
+      margin: 0;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .book-container {
+      width: 90%;
+      max-width: var(--page-width);
+      height: var(--page-height);
+      margin: 2rem auto;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .book-slider {
+      display: flex;
+      height: 100%;
+      transition: transform var(--transition-speed) ease-in-out;
+    }
+
+    .page {
+      min-width: 100%;
+      height: 100%;
+      background: white;
+      position: relative;
+      padding: 20px;
+      overflow: hidden;
+      border: 2px solid #007bff;
+      border-radius: 8px;
+      box-sizing: border-box;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .page-content-wrapper {
+      transform-origin: top left;
+      width: 100%;
+      height: calc(100% - 6rem); /* Adjust for title, controls, and page counter */
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .page-content {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      box-sizing: border-box;
+      padding-bottom: 1rem;
+      contain: content;
+    }
+
+    .page-title {
+      text-align: center;
+      margin: 0 0 1rem;
+      padding: 0.5rem;
+      font-size: 1.5em;
+      font-weight: bold;
+      background-color: #f8f8f8;
+      border: none;
+      width: 100%;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .title-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .boundary-controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255,255,255,0.9);
+      padding: 0.5rem;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .resize-handle {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      width: 15px;
+      height: 15px;
+      background: #007bff;
+      cursor: se-resize;
+      border-radius: 3px;
+      z-index: 10;
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      display: flex;
+      gap: 1rem;
+      background: rgba(255,255,255,0.9);
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .media-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .media-preview {
+      margin: 1rem 0;
+      max-width: 100%;
+    }
+
+    .page-counter {
+      position: absolute;
+      bottom: 0.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 8px;
+      font-weight: normal;
+    }
+
+    .toggle-style-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 0.5rem;
+      font-size: 0.8em;
+    }
+  </style>
+  <body>
+  <div class="book-container">
+    <div class="book-slider" id="bookSlider">
+      <!-- Pages will be inserted here -->
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="previousPage()">← Previous</button>
+    <button onclick="nextPage()">Next →</button>
+    <button onclick="toggleMediaControls()">Media Tools ▼</button>
+    <button onclick="exportToPDF()">Export PDF</button>
+    
+    <div class="media-controls" id="mediaControls" style="display: none;">
+      <input type="file" accept="image/*" id="imageUpload" hidden>
+      <button onclick="document.getElementById('imageUpload').click()">Add Image</button>
+      
+      <input type="file" accept="video/*" id="videoUpload" hidden>
+      <button onclick="document.getElementById('videoUpload').click()">Add Video</button>
+      
+      <input type="file" accept="audio/*" id="audioUpload" hidden>
+      <button onclick="document.getElementById('audioUpload').click()">Add Audio</button>
+      
+      <input type="file" accept=".pdf,.doc,.docx" id="docUpload" hidden>
+      <button onclick="document.getElementById('docUpload').click()">Add Document</button>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+  
+  <script>
+  let currentPage = 0;
+  let totalPages = 1;
+  const bookSlider = document.getElementById('bookSlider');
+
+  // Initialize first page
+  createPage(1);
+
+  function createPage(number) {
+    const page = document.createElement('div');
+    page.className = 'page';
+    page.innerHTML = `
+      <input type="text" class="page-title" placeholder="Enter page title..." contenteditable="true">
+      <div class="title-controls">
+        <input type="color" id="titleBgColor${number}" value="#f8f8f8" onchange="updateTitleBg(${number}, this.value)">
+      </div>
+      <div class="boundary-controls" id="boundaryControls${number}" style="display: none;">
+        <select id="borderStyle${number}" onchange="updateBorderStyle(${number}, this.value)">
+          <option value="solid">Solid</option>
+          <option value="dashed">Dashed</option>
+          <option value="dotted">Dotted</option>
+        </select>
+        <input type="color" id="borderColor${number}" value="#007bff" onchange="updateBorderColor(${number}, this.value)">
+        <input type="color" id="pageBgColor${number}" value="#ffffff" onchange="updatePageBgColor(${number}, this.value)">
+        <input type="file" accept="image/*" id="pageBgImage${number}" hidden onchange="updatePageBgImage(${number}, this.files[0])">
+        <button onclick="document.getElementById('pageBgImage${number}').click()">Upload Background Image</button>
+        <button onclick="savePage(${number})">Save Page</button>
+      </div>
+      <button class="toggle-style-button" onclick="toggleStyleControls(${number})">Show Style Controls</button>
+      <div class="page-content-wrapper" id="contentWrapper${number}">
+        <div class="page-content" contenteditable="true">
+          <h3>Page ${number}</h3>
+          <p>Start editing your content here...</p>
+        </div>
+      </div>
+      <div class="resize-handle" id="resizeHandle${number}"></div>
+      <div class="page-counter" id="pageCounter${number}">Page ${number} of ${totalPages}</div>
+    `;
+    bookSlider.appendChild(page);
+    totalPages = number;
+    updateCounter(number);
+    setupResizeHandler(number);
+  }
+
+  function setupResizeHandler(pageNumber) {
+    const handle = document.getElementById(`resizeHandle${pageNumber}`);
+    const wrapper = document.getElementById(`contentWrapper${pageNumber}`);
+    let isResizing = false;
+    let startX, startY, startScale = 1;
+
+    handle.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      startScale = parseFloat(wrapper.style.transform?.match(/scale\((.*?)\)/)?.[1] || 1);
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      const page = document.querySelectorAll('.page')[pageNumber - 1];
+      const rect = page.getBoundingClientRect();
+      const deltaX = (e.clientX - startX) / rect.width;
+      const deltaY = (e.clientY - startY) / rect.height;
+      const scale = Math.max(0.5, Math.min(startScale + (deltaX + deltaY) / 2, 2));
+      wrapper.style.transform = `scale(${scale})`;
+    });
+
+    document.addEventListener('mouseup', () => {
+      isResizing = false;
+    });
+  }
+
+  function updateTitleBg(pageNumber, color) {
+    const title = document.querySelectorAll('.page-title')[pageNumber - 1];
+    title.style.backgroundColor = color;
+  }
+
+  function updateBorderStyle(pageNumber, style) {
+    const page = document.querySelectorAll('.page')[pageNumber - 1];
+    page.style.borderStyle = style;
+  }
+
+  function updateBorderColor(pageNumber, color) {
+    const page = document.querySelectorAll('.page')[pageNumber - 1];
+    page.style.borderColor = color;
+  }
+
+  function updatePageBgColor(pageNumber, color) {
+    const page = document.querySelectorAll('.page')[pageNumber - 1];
+    page.style.backgroundImage = 'none';
+    page.style.backgroundColor = color;
+  }
+
+  function updatePageBgImage(pageNumber, file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const page = document.querySelectorAll('.page')[pageNumber - 1];
+      page.style.backgroundImage = `url(${reader.result})`;
+      page.style.backgroundColor = 'transparent';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function savePage(pageNumber) {
+    const controls = document.getElementById(`boundaryControls${pageNumber}`);
+    controls.style.display = 'none';
+  }
+
+  function toggleStyleControls(pageNumber) {
+    const controls = document.getElementById(`boundaryControls${pageNumber}`);
+    controls.style.display = controls.style.display === 'none' ? 'flex' : 'none';
+  }
+
+  function nextPage() {
+    if (currentPage < totalPages - 1) {
+      currentPage++;
+    } else {
+      createPage(totalPages + 1);
+      currentPage++;
+    }
+    updateSlider();
+  }
+
+  function previousPage() {
+    if (currentPage > 0) {
+      currentPage--;
+      updateSlider();
+    }
+  }
+
+  function updateSlider() {
+    bookSlider.style.transform = `translateX(-${currentPage * 100}%)`;
+    updateAllCounters();
+  }
+
+  function updateCounter(pageNumber) {
+    const pageCounter = document.getElementById(`pageCounter${pageNumber}`);
+    pageCounter.textContent = `Page ${pageNumber} of ${totalPages}`;
+  }
+
+  function updateAllCounters() {
+    for (let i = 1; i <= totalPages; i++) {
+      updateCounter(i);
+    }
+  }
+
+  function toggleMediaControls() {
+    const controls = document.getElementById('mediaControls');
+    controls.style.display = controls.style.display === 'none' ? 'flex' : 'none';
+  }
+
+  // Handle media uploads
+  document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
+  document.getElementById('videoUpload').addEventListener('change', handleVideoUpload);
+  document.getElementById('audioUpload').addEventListener('change', handleAudioUpload);
+  document.getElementById('docUpload').addEventListener('change', handleDocUpload);
+
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      insertMedia(`<img src="${reader.result}" class="media-preview">`);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleVideoUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    insertMedia(`
+      <video controls class="media-preview">
+        <source src="${url}" type="${file.type}">
+        Your browser does not support HTML5 video.
+      </video>
+    `);
+  }
+
+  function handleAudioUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    insertMedia(`
+      <audio controls class="media-preview">
+        <source src="${url}" type="${file.type}">
+        Your browser does not support HTML5 audio.
+      </audio>
+    `);
+  }
+
+  function handleDocUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    insertMedia(`
+      <div class="document-preview">
+        <a href="${url}" download="${file.name}" class="doc-link">
+          📄 ${file.name}
+        </a>
+      </div>
+    `);
+  }
+
+  function insertMedia(html) {
+    const currentPageContent = document.querySelectorAll('.page-content')[currentPage];
+    const cleanHTML = DOMPurify.sanitize(html);
+    currentPageContent.insertAdjacentHTML('beforeend', cleanHTML);
+  }
+
+  function exportToPDF() {
+    const opt = {
+      margin:       1,
+      filename:     `flipbook_${Date.now()}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(bookSlider).save();
+  }
+
+  // Touch/swipe handling
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  });
+
+  document.addEventListener('touchend', e => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaX = touchStartX - touchEndX;
+    if (Math.abs(deltaX) > 50) {
+      deltaX > 0 ? nextPage() : previousPage();
+    }
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') previousPage();
+    if (e.key === 'ArrowRight') nextPage();
+  });
+</script>
+  // your existing JS here...
+/*register the service worker*/
+<script>
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log('Service Worker registered:', reg))
+        .catch(err => console.error('Service Worker registration failed:', err));
+    });
+  }
+</script>
+  </body>
+</head>
